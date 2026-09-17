@@ -1,0 +1,203 @@
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| pfs6               |
+| sakila             |
+| sys                |
+| world              |
++--------------------+
+7 rows in set (0.14 sec)
+
+mysql> USE PFS6;
+Database changed
+mysql> CREATE TABLE student_details (
+    ->     student_id INT,
+    ->     student_name VARCHAR(50),
+    ->     courses VARCHAR(100),
+    ->     trainers VARCHAR(100),
+    ->     trainer_phones VARCHAR(100)
+    -> );
+Query OK, 0 rows affected (0.11 sec)
+
+mysql>
+mysql> INSERT INTO student_details
+    -> VALUES
+    -> (101, 'Ravi', 'Java, Python', 'Kumar, Ramesh', '9876543210, 9876543211'),
+    -> (102, 'Priya', 'Python, SQL', 'Ramesh, Suresh', '9876543211, 9876543212'),
+    -> (103, 'Arun', 'Java, SQL', 'Kumar, Suresh', '9876543210, 9876543212');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM STUDENT_DETAILS;
++------------+--------------+--------------+----------------+------------------------+
+| student_id | student_name | courses      | trainers       | trainer_phones         |
++------------+--------------+--------------+----------------+------------------------+
+|        101 | Ravi         | Java, Python | Kumar, Ramesh  | 9876543210, 9876543211 |
+|        102 | Priya        | Python, SQL  | Ramesh, Suresh | 9876543211, 9876543212 |
+|        103 | Arun         | Java, SQL    | Kumar, Suresh  | 9876543210, 9876543212 |
++------------+--------------+--------------+----------------+------------------------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE TABLE STUDENT_COURSE_1NF(
+    -> STUDENT_ID INT,
+    -> STUDENT_NAME VARCHAR(50),
+    -> COURSE VARCHAR(30),
+    -> TRAINER VARCHAR(30),
+    -> TRAINER_PHONE VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> INSERT INTO STUDENT_COURSE_1NF VALUES
+    -> (101, 'Ravi', 'Java', 'Kumar', '9876543210'),
+    -> (101, 'Ravi', ' Python', 'Ramesh', '9876543211'),
+    -> (102, 'Priya', 'Python', 'Ramesh', '9876543211'),
+    -> (102, 'Priya', ' SQL', 'Suresh', '9876543212'),
+    -> (103, 'Arun', 'Java', 'Kumar', '9876543210');
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO STUDENT_COURSE_1NF VALUES
+    -> (103, 'Arun', 'SQL', 'Suresh', '9876543212');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> SELECT * FROM STUDENT_COURSE_1NF;
++------------+--------------+---------+---------+---------------+
+| STUDENT_ID | STUDENT_NAME | COURSE  | TRAINER | TRAINER_PHONE |
++------------+--------------+---------+---------+---------------+
+|        101 | Ravi         | Java    | Kumar   | 9876543210    |
+|        101 | Ravi         |  Python | Ramesh  | 9876543211    |
+|        102 | Priya        | Python  | Ramesh  | 9876543211    |
+|        102 | Priya        |  SQL    | Suresh  | 9876543212    |
+|        103 | Arun         | Java    | Kumar   | 9876543210    |
+|        103 | Arun         | SQL     | Suresh  | 9876543212    |
++------------+--------------+---------+---------+---------------+
+6 rows in set (0.00 sec)
+
+mysql> CREATE TABLE STUDENT_2NF(
+    -> STUDENT_ID INT PRIMARY KEY,
+    -> STUDENT_NAME VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO STUDENT_2NF VALUES
+    -> (101,'RAVI'),
+    -> (102,'PRIYA'),
+    -> (103,'ARUN');
+Query OK, 3 rows affected (0.03 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM STUDENT_2NF;
++------------+--------------+
+| STUDENT_ID | STUDENT_NAME |
++------------+--------------+
+|        101 | RAVI         |
+|        102 | PRIYA        |
+|        103 | ARUN         |
++------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE TABLE ENROLLMENT_2NF(
+    -> STUDENT_ID INT,
+    -> COURSE VARCHAR(30),
+    -> TRAINER VARCHAR(50),
+    -> TRAINER _PHONE VARCHAR(15),
+    -> PRIMARY KEY (STUDENT_ID,COURSE),
+    -> FOREIGN KEY(STUDENT_ID) REFERENCES STUDENT_2NF(STUDENT_ID)
+    -> );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '_PHONE VARCHAR(15),
+PRIMARY KEY (STUDENT_ID,COURSE),
+FOREIGN KEY(STUDENT_ID) REF' at line 5
+mysql> CREATE TABLE ENROLLMENT_2NF(
+    -> STUDENT_ID INT,
+    -> COURSE VARCHAR(30),
+    -> TRAINER VARCHAR(50),
+    -> TRAINER_PHONE VARCHAR(15),
+    -> PRIMARY KEY (STUDENT_ID,COURSE),
+    -> FOREIGN KEY(STUDENT_ID) REFERENCES STUDENT_2NF(STUDENT_ID)
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> INSERT INTO ENROLLMENT_2NF VALUES
+    -> (101, 'Java', 'Kumar', '9876543210'),
+    -> (101, ' Python', 'Ramesh', '9876543211'),
+    -> (102,  'Python', 'Ramesh', '9876543211'),
+    -> (102, ' SQL', 'Suresh', '9876543212'),
+    -> (103,  'Java', 'Kumar', '9876543210'),
+    -> (103,  'SQL', 'Suresh', '9876543212');
+Query OK, 6 rows affected (0.05 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM ENROLLMENT_2NF;
++------------+---------+---------+---------------+
+| STUDENT_ID | COURSE  | TRAINER | TRAINER_PHONE |
++------------+---------+---------+---------------+
+|        101 |  Python | Ramesh  | 9876543211    |
+|        101 | Java    | Kumar   | 9876543210    |
+|        102 |  SQL    | Suresh  | 9876543212    |
+|        102 | Python  | Ramesh  | 9876543211    |
+|        103 | Java    | Kumar   | 9876543210    |
+|        103 | SQL     | Suresh  | 9876543212    |
++------------+---------+---------+---------------+
+6 rows in set (0.00 sec)
+
+mysql> CREATE TABLE TRAINER_3NF(
+    -> TRAINER_ID INT PRIMARY KEY,
+    -> TRAINER_NAME VARCHAR(50),
+    -> TRAINER_PHONE VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO TRAINER_3NF VALUES
+    -> (1,'KUMAR','9876543210'),
+    -> (2,'RAMESH','9876543211'),
+    -> (3,'SURESH','9876543212');
+Query OK, 3 rows affected (0.04 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE COURSE_3NF(
+    -> COURSE_ID INT PRIMARY KEY,
+    -> COURSE_NAME VARCHAR(30),
+    -> TRAINER_ID INT,
+    -> FOREIGN KEY (TRAINER_ID) REFERENCES TRAINER_3NF(TRAINER_ID)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> INSERT INTO COURSE_3NF VALUES
+    -> (1,'JAVA',1),
+    -> (2,'PYTHON',2),
+    -> (3,'SQL',3);
+Query OK, 3 rows affected (0.04 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE ENROLLMENT_3NF(
+    -> STUDENT_ID INT,
+    -> COURSE_ID INT,
+    -> PRIMARY KEY(STUDENT_ID,COURSE_ID),
+    -> FOREIGN KEY(STUDENT_ID) REFERENCES STUDENT_2NF(STUDENT_ID),
+    -> FOREIGN KEY(COURSE_ID) REFERENCES STUDENT_2NF(COURSE_ID)
+    -> );
+ERROR 3734 (HY000): Failed to add the foreign key constraint. Missing column 'COURSE_ID' for constraint 'enrollment_3nf_ibfk_2' in the referenced table 'student_2nf'
+mysql> CREATE TABLE ENROLLMENT_3NF(
+    -> STUDENT_ID INT,
+    -> COURSE_ID INT,
+    -> PRIMARY KEY(STUDENT_ID,COURSE_ID),
+    -> FOREIGN KEY(STUDENT_ID) REFERENCES STUDENT_2NF(STUDENT_ID),
+    -> FOREIGN KEY(COURSE_ID) REFERENCES COURSE_3NF(COURSE_ID)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> INSERT INTO ENROLLMENT_3NF VALUES
+    -> (101,1),
+    -> (101,2),
+    -> (102,2),
+    -> (102,3),
+    -> (103,1),
+    -> (103,3);
+Query OK, 6 rows affected (0.04 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql>
